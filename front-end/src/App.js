@@ -10,6 +10,7 @@ function App() {
   const [playerRoles, setPlayerRoles] = useState(Array(10).fill([]));
   const [generatedPlayers, setGeneratedPlayers] = useState([]);
   const [defaultRank, setDefaultRank] = useState('iron1');
+  const [roleAssignment, setRoleAssignment] = useState('no');
   const [apiErrors, setApiErrors] = useState(Array(10).fill(false));
   const [playerDataWithPuuids, setPlayerDataWithPuuids] = useState([]);
   const [processedRankedData, setProcessedRankedData] = useState([]);
@@ -33,6 +34,13 @@ function App() {
       if (interval) clearInterval(interval);
     };
   }, [lastGenerateTime, cooldownDisplay]);
+
+  // Auto-set role assignment to 'no' when there are less than 6 players
+  useEffect(() => {
+    if (shouldDisableRoleAssignment()) {
+      setRoleAssignment('no');
+    }
+  }, [playerInputs]);
 
   async function getPlayerData(player) {
     const apikey = process.env.REACT_APP_API_KEY;
@@ -134,7 +142,7 @@ async function getRankedData(puuid) {
     const team2 = shuffledPlayers.slice(midPoint);
     
     // Assign roles if enabled
-    const assignRoles = document.querySelector('input[name="generateRoles"]:checked')?.value === 'yes';
+    const assignRoles = roleAssignment === 'yes';
     if (assignRoles) {
       assignRolesToTeams(team1, team2);
     }
@@ -214,7 +222,7 @@ async function getRankedData(puuid) {
     }
     
     // Assign roles if enabled
-    const assignRoles = document.querySelector('input[name="generateRoles"]:checked')?.value === 'yes';
+    const assignRoles = roleAssignment === 'yes';
     if (assignRoles) {
       assignRolesToTeams(team1, team2);
     }
@@ -283,7 +291,7 @@ async function getRankedData(puuid) {
     };
     
     // Assign roles if enabled
-    const assignRoles = document.querySelector('input[name="generateRoles"]:checked')?.value === 'yes';
+    const assignRoles = roleAssignment === 'yes';
     if (assignRoles) {
       assignRolesToTeams(result.blueTeam, result.redTeam);
     }
@@ -359,21 +367,23 @@ async function getRankedData(puuid) {
   }
 
   const handleInputChange = (value, index) => {
+    console.log(`handleInputChange called with value: "${value}", index: ${index}`);
     const newInputs = [...playerInputs];
-    newInputs[index - 1] = value;
+    newInputs[index] = value;
     setPlayerInputs(newInputs);
     
     // Reset API error for this player when they edit the field
-    if (apiErrors[index - 1]) {
+    if (apiErrors[index]) {
       setApiErrors(prev => {
         const newErrors = [...prev];
-        newErrors[index - 1] = false;
+        newErrors[index] = false;
         return newErrors;
       });
     }
   };
 
   const handleRolesChange = (roles, index) => {
+    console.log(`handleRolesChange called with roles: [${roles}], index: ${index}`);
     const newRoles = [...playerRoles];
     newRoles[index] = roles;
     setPlayerRoles(newRoles);
@@ -389,6 +399,7 @@ async function getRankedData(puuid) {
     setProcessedRankedData([]);
     setPlayerDataWithPuuids([]);
     setApiErrors(Array(10).fill(false));
+    setRoleAssignment('no');
     // Don't clear csvData - keep the input text visible
     
     const lines = csvData.trim().split('\n');
@@ -430,6 +441,7 @@ async function getRankedData(puuid) {
     setProcessedRankedData([]);
     setGeneratedTeams([]);
     setApiErrors(Array(10).fill(false));
+    setRoleAssignment('no');
   };
 
   const handleRerollTeams = () => {
@@ -449,7 +461,7 @@ async function getRankedData(puuid) {
     }
     
     // If "Assign Roles" is set to "No", change all players' roles to null
-    const assignRoles = document.querySelector('input[name="generateRoles"]:checked')?.value === 'yes';
+    const assignRoles = roleAssignment === 'yes';
     if (!assignRoles) {
       teams.blueTeam.forEach(player => {
         player.assignedRole = null;
@@ -484,7 +496,7 @@ async function getRankedData(puuid) {
     }
     
     // Check if we have enough players for role assignment
-    const assignRoles = document.querySelector('input[name="generateRoles"]:checked')?.value === 'yes';
+    const assignRoles = roleAssignment === 'yes';
     if (assignRoles && validPlayers.length < 6) {
       alert('Role assignment requires at least 6 players. Please add more players or set "Assign Roles" to "No".');
       setIsGenerating(false);
@@ -633,7 +645,9 @@ async function getRankedData(puuid) {
       alert('Role assignment requires at least 6 players. Please add more players first.');
       return;
     }
-    // The radio button will be handled by the disabled state
+    
+    // Update the role assignment state
+    setRoleAssignment(value);
   };
 
   // Function to get rank color
@@ -747,7 +761,7 @@ async function getRankedData(puuid) {
                     type="radio" 
                     name="generateRoles" 
                     value="yes" 
-                    defaultChecked
+                    checked={roleAssignment === 'yes'}
                     disabled={shouldDisableRoleAssignment()}
                     onChange={() => handleRoleAssignmentChange('yes')}
                   />
@@ -758,7 +772,7 @@ async function getRankedData(puuid) {
                     type="radio" 
                     name="generateRoles" 
                     value="no"
-                    disabled={shouldDisableRoleAssignment()}
+                    checked={roleAssignment === 'no'}
                     onChange={() => handleRoleAssignmentChange('no')}
                   />
                   <span>No</span>
