@@ -898,7 +898,7 @@ async function getRankedData(puuid) {
       <footer>
         <div className="footer-content">
           <img src={logo} alt="Logo" className="footer-logo" />
-          <p>THANOS v2.0 - HUY'S CUSTOM GAME BALANCER</p>
+          <p>BY HUY TRUONG - HUYTRUONG.CA - HUY@HUYTRUONG.CA</p>
         </div>
       </footer>
     </div>
