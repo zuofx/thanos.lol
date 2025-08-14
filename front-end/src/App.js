@@ -375,57 +375,50 @@ async function getRankedData(puuid) {
 
   const handleRolesChange = (roles, index) => {
     const newRoles = [...playerRoles];
-    newRoles[index - 1] = roles;
+    newRoles[index] = roles;
     setPlayerRoles(newRoles);
   };
 
   const handleCsvSubmit = () => {
     if (!csvData.trim()) return;
     
-    try {
-      // Parse CSV data (assuming format: name#tag,role1,role2,role3...)
-      const lines = csvData.trim().split('\n');
-      const newInputs = [...playerInputs];
-      const newRoles = [...playerRoles];
+    // Reset the page before filling in new CSV data
+    setPlayerInputs(Array(10).fill(''));
+    setPlayerRoles(Array(10).fill([]));
+    setGeneratedTeams([]);
+    setProcessedRankedData([]);
+    setPlayerDataWithPuuids([]);
+    setApiErrors(Array(10).fill(false));
+    // Don't clear csvData - keep the input text visible
+    
+    const lines = csvData.trim().split('\n');
+    
+    lines.forEach((line, index) => {
+      if (index >= 10) return; // Only process first 10 lines
       
-      lines.forEach((line, index) => {
-        if (index < 10) { // Only process first 10 players
-          const parts = line.split(',');
-          if (parts.length >= 1) {
-            newInputs[index] = parts[0]; // First part is name#tag
-            
-            // Parse roles if they exist
-            if (parts.length > 1) {
-              const roles = parts.slice(1).filter(role => {
-                const trimmedRole = role.trim();
-                return ['TOP', 'JGL', 'MID', 'BOT', 'SUP', 'FILL'].some(validRole => 
-                  validRole.toLowerCase() === trimmedRole.toLowerCase()
-                );
-              }).map(role => {
-                // Convert to proper case (TOP, JGL, MID, BOT, SUP, FILL)
-                const trimmedRole = role.trim();
-                if (trimmedRole.toLowerCase() === 'top') return 'TOP';
-                if (trimmedRole.toLowerCase() === 'jgl') return 'JGL';
-                if (trimmedRole.toLowerCase() === 'mid') return 'MID';
-                if (trimmedRole.toLowerCase() === 'bot') return 'BOT';
-                if (trimmedRole.toLowerCase() === 'sup') return 'SUP';
-                if (trimmedRole.toLowerCase() === 'fill') return 'FILL';
-                return trimmedRole; // Fallback
-              });
+      const parts = line.split(',');
+      if (parts.length >= 1) {
+        const playerName = parts[0].trim();
+        if (playerName) {
+          // Update player input
+          setPlayerInputs(prev => {
+            const newInputs = [...prev];
+            newInputs[index] = playerName;
+            return newInputs;
+          });
+          
+          // Update player roles if provided
+          if (parts.length > 1) {
+            const roles = parts.slice(1).map(role => role.trim().toUpperCase()).filter(role => role);
+            setPlayerRoles(prev => {
+              const newRoles = [...prev];
               newRoles[index] = roles;
-            }
+              return newRoles;
+            });
           }
         }
-      });
-      
-      setPlayerInputs(newInputs);
-      setPlayerRoles(newRoles);
-      
-      
-    } catch (error) {
-      console.error('Error parsing CSV:', error);
-      alert('Error parsing CSV data. Please check the format.');
-    }
+      }
+    });
   };
 
   const handleClearAll = () => {
@@ -453,6 +446,17 @@ async function getRankedData(puuid) {
     }
     else {
       teams = generateRandomTeams(processedRankedData);
+    }
+    
+    // If "Assign Roles" is set to "No", change all players' roles to null
+    const assignRoles = document.querySelector('input[name="generateRoles"]:checked')?.value === 'yes';
+    if (!assignRoles) {
+      teams.blueTeam.forEach(player => {
+        player.assignedRole = null;
+      });
+      teams.redTeam.forEach(player => {
+        player.assignedRole = null;
+      });
     }
     
     setGeneratedTeams(teams);
@@ -649,6 +653,27 @@ async function getRankedData(puuid) {
     return rankColors[tier] || '#8d42f5'; // Default to purple if tier not found
   };
 
+  // Function to sort players by role order
+  const sortPlayersByRole = (players) => {
+    const roleOrder = { 'TOP': 1, 'JGL': 2, 'MID': 3, 'BOT': 4, 'SUP': 5 };
+    return [...players].sort((a, b) => {
+      const roleA = a.assignedRole || 'FILL';
+      const roleB = b.assignedRole || 'FILL';
+      
+      // If both have assigned roles, sort by role order
+      if (roleA in roleOrder && roleB in roleOrder) {
+        return roleOrder[roleA] - roleOrder[roleB];
+      }
+      
+      // If only one has an assigned role, prioritize the one with role
+      if (roleA in roleOrder && !(roleB in roleOrder)) return -1;
+      if (!(roleA in roleOrder) && roleB in roleOrder) return 1;
+      
+      // If neither has an assigned role, maintain original order
+      return 0;
+    });
+  };
+
   return (
     <div className="App">
       <div className="header">
@@ -841,7 +866,7 @@ async function getRankedData(puuid) {
           <div className="team-section">
             <h3 className="team-title blue-team">Blue Side</h3>
             <div className="team-players">
-              {generatedTeams.blueTeam ? generatedTeams.blueTeam.map((player, index) => (
+              {generatedTeams.blueTeam ? sortPlayersByRole(generatedTeams.blueTeam).map((player, index) => (
                 <div key={index} className="team-player">
                   <span className="player-role">{player.assignedRole || 'No Role'}</span>
                   <a 
@@ -869,7 +894,7 @@ async function getRankedData(puuid) {
           <div className="team-section">
             <h3 className="team-title red-team">Red Side</h3>
             <div className="team-players">
-              {generatedTeams.redTeam ? generatedTeams.redTeam.map((player, index) => (
+              {generatedTeams.redTeam ? sortPlayersByRole(generatedTeams.redTeam).map((player, index) => (
                 <div key={index} className="team-player">
                   <span className="player-role">{player.assignedRole || 'No Role'}</span>
                   <a 
