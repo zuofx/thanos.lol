@@ -5,6 +5,9 @@
   user-select: none;
   padding: 0 16px;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .header {
@@ -39,6 +42,8 @@
 
 .dennis-logo {
   width: 800px;
+  max-width: 100%;
+  height: auto;
 }
 
 footer {
@@ -87,6 +92,7 @@ footer {
   margin-bottom: 80px;
   align-items: flex-start;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .input-section {
@@ -94,10 +100,9 @@ footer {
   flex-direction: column;
   align-items: flex-start;
   gap: 0px;
-  /* margin-top: 10px; */
   margin-left: 10px;
   width: fit-content;
-  max-width: fit-content;
+  max-width: 100%;
   flex-shrink: 0;
   border: 2px solid #8d42f5;
   border-radius: 8px;
@@ -108,12 +113,15 @@ footer {
 .players-container {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .players-column {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  min-width: 0;
 }
 
 .input-section h3 {
@@ -129,6 +137,7 @@ footer {
   flex-direction: column;
   gap: 20px;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .teams-display {
@@ -138,6 +147,7 @@ footer {
   margin-left: 20px;
   flex-shrink: 0;
   min-width: 300px;
+  max-width: 100%;
 }
 
 .team-section {
@@ -146,6 +156,7 @@ footer {
   border-radius: 8px;
   padding: 20px;
   min-width: 300px;
+  max-width: 100%;
   height: fit-content;
 }
 
@@ -180,6 +191,8 @@ footer {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   border-left: 3px solid #8d42f5;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .player-name {
@@ -188,6 +201,8 @@ footer {
   flex: 1;
   text-decoration: none;
   cursor: pointer;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .player-name:hover {
@@ -205,12 +220,14 @@ footer {
   margin: 0 10px;
   min-width: 40px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .player-mmr {
   color: #ffffff;
   font-size: 14px;
   opacity: 0.8;
+  flex-shrink: 0;
 }
 
 .team-total {
@@ -238,6 +255,7 @@ footer {
   border-radius: 8px;
   padding: 20px;
   min-width: 250px;
+  max-width: 100%;
   height: fit-content;
   flex-shrink: 0;
   margin-left: 16px;
@@ -258,6 +276,7 @@ footer {
   padding: 20px;
   flex-shrink: 0;
   width: 300px;
+  max-width: 100%;
 }
 
 .csv-panel h3 {
@@ -501,6 +520,52 @@ footer {
   transform: translateY(1px);
 }
 
+/* Large screen breakpoint */
+@media (max-width: 1200px) {
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .input-section {
+    margin-left: 0;
+    max-width: 100%;
+  }
+  
+  .middle-panel {
+    flex-direction: row;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .options-panel,
+  .csv-panel {
+    margin-left: 0;
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+  }
+  
+  .teams-display {
+    margin-left: 0;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+  }
+  
+  .team-section {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+  }
+}
+
 /* Tablet breakpoint */
 @media (max-width: 768px) {
   .App {
@@ -511,26 +576,59 @@ footer {
     font-size: 1.75rem;
   }
   
+  .dennis-logo {
+    width: 100%;
+    max-width: 600px;
+  }
+  
   .main-content {
     flex-direction: column;
     gap: 20px;
+    align-items: center;
+  }
+  
+  .input-section {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .players-container {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  .players-column {
+    width: 100%;
   }
   
   .middle-panel {
+    flex-direction: column;
     gap: 16px;
-  }
-  
-  .teams-display {
-    margin-left: 0;
-    flex-direction: row;
-    gap: 20px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .options-panel,
   .csv-panel {
+    width: 100%;
+    max-width: 100%;
     min-width: 100%;
-    position: static;
+  }
+  
+  .teams-display {
     margin-left: 0;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .team-section {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
   }
 }
 
@@ -549,6 +647,11 @@ footer {
     font-size: 1.5rem;
   }
   
+  .dennis-logo {
+    width: 100%;
+    max-width: 400px;
+  }
+  
   .main-content {
     gap: 16px;
     margin-top: 16px;
@@ -558,6 +661,7 @@ footer {
     gap: 0px;
     margin-top: 12px;
     max-width: 100%;
+    padding: 16px;
   }
   
   .middle-panel {
@@ -601,6 +705,11 @@ footer {
     font-size: 1.25rem;
   }
   
+  .dennis-logo {
+    width: 100%;
+    max-width: 300px;
+  }
+  
   .main-content {
     gap: 12px;
     margin-top: 12px;
@@ -609,6 +718,7 @@ footer {
   .input-section {
     gap: 0px;
     margin-top: 10px;
+    padding: 12px;
   }
   
   .middle-panel {
@@ -625,22 +735,22 @@ footer {
   }
 }
 
-  .radio-option input[type="radio"]:disabled + span {
-    color: #666;
-    cursor: not-allowed;
-  }
+.radio-option input[type="radio"]:disabled + span {
+  color: #666;
+  cursor: not-allowed;
+}
 
-  .radio-option input[type="radio"]:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
+.radio-option input[type="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
-  .role-disabled-warning {
-    color: #ff6b6b;
-    font-size: 0.9rem;
-    margin-top: 8px;
-    font-style: italic;
-  }
+.role-disabled-warning {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  font-style: italic;
+}
 
 .player-rank {
   font-weight: 500;
